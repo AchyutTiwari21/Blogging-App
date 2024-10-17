@@ -1,6 +1,7 @@
 import React from "react";
 import {Editor} from '@tinymce/tinymce-react';
-import { Controller } from "react-hook-form"
+import { Controller } from "react-hook-form";
+import config from "../config/config";
 
 export default function RTE({name, control, label, defaultValue = ""}) {
     return (
@@ -14,11 +15,13 @@ export default function RTE({name, control, label, defaultValue = ""}) {
             <Controller
             name={name || "content"}
             control={control}
-            render={({field: {onChange}}) => (
+            render={({field: {onChange, value}}) => (
                 <Editor
+                apiKey={config.apiKey}
                 initialValue={defaultValue}
+                value={value}
                 init={{
-                    initialValue: defaultValue,
+                    readonly: false,
                     height: 500,
                     menubar: true,
                     plugins: [
@@ -27,10 +30,8 @@ export default function RTE({name, control, label, defaultValue = ""}) {
                         "autolink",
                         "lists",
                         "link",
-                        "image",
                         "charmap",
                         "preview",
-                        "anchor",
                         "searchreplace",
                         "visualblocks",
                         "code",
@@ -54,3 +55,33 @@ export default function RTE({name, control, label, defaultValue = ""}) {
         </div>
     )
 }
+
+{/* <Controller
+    name={name || "content"}
+    control={control}
+    render={({ field: { onChange, value }, fieldState: { error } }) => (
+        <>
+            <Editor
+                initialValue={defaultValue}
+                value={value}  // Ensure content sync between form and editor
+                init={{
+                    height: 500,
+                    menubar: true,
+                    plugins: [
+                        "image", "advlist", "autolink", "lists", "link", "charmap",
+                        "preview", "searchreplace", "visualblocks", "code",
+                        "fullscreen", "insertdatetime", "media", "table",
+                        "help", "wordcount", "anchor"
+                    ],
+                    toolbar:
+                        "undo redo | blocks | image | bold italic forecolor | " +
+                        "alignleft aligncenter alignright alignjustify | " +
+                        "bullist numlist outdent indent | removeformat | help",
+                    content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
+                }}
+                onEditorChange={onChange}
+            />
+            {error && <p style={{ color: 'red' }}>{error.message}</p>}
+        </>
+    )}
+/> */}

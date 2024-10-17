@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useEffect} from "react";
 import {useForm} from "react-hook-form";
 import {Button, Input, Select, RTE} from "../index";
 import appwriteService from "../../appwrite/configuration";
@@ -10,31 +10,32 @@ function PostForm({post}) {
         defaultValues: {
             title: post?.title || '',
             slug: post?.slug || '',
-            content: post?.status || 'active',
+            content: post?.content || '',
+            status: post?.status || 'active',
         },
     });
 
     const navigate = useNavigate();
-    const userData = useSelector(state => state.user.userData);
+    const userData = useSelector(state => state.auth.userData);
 
     const submit = async (data) => {
         if (post) {
-            const file = data.image[0] ? appwriteService.uploadFile(data.image[0]) : null;
+            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
 
             if(file) {
-                appwriteService.deleteFile(post.featured)
+                await appwriteService.deleteFile(post.featuredImage);
             }
 
             const dbPost = await appwriteService.updatePost(post.$id, {
                 ...data,
                 featuredImage: file ? file.$id : undefined
-            })
+            });
 
             if(dbPost) {
                 navigate(`/post/${dbPost.$id}`)
             }
         } else {
-            const file = await appwriteService.uploadFileService.uploadFile(data.image[0]);
+            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
 
             if(file) {
                 const fileId = file.$id;
@@ -56,25 +57,24 @@ function PostForm({post}) {
             return value
             .trim()
             .toLowerCase()
-            .replace(/^[a-zA-Z\d\s]+/g, '-')
             .replace(/\s/g, '-');
         
         return '';
-
-        React.useEffect(() => {
-            const subscription = watch((value, {name}) => {
-                if (name === "title") {
-                    setValue("slug", slugTransform(value.title,
-                        {shouldValidate: true}
-                    ));
-                }
-            })
-
-            return () => {
-                subscription.unsubscribe()
-            }
-        }, [watch, slugTransform, setValue])
     }, []);
+
+    useEffect(() => {
+        const subscription = watch((value, {name}) => {
+            if (name === "title") {
+                setValue("slug", slugTransform(value.title,
+                    {shouldValidate: true}
+                ));
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [watch, slugTransform, setValue]);
 
     
     return (
@@ -129,3 +129,5 @@ function PostForm({post}) {
 }
 
 export default PostForm;
+
+// .replace(/^[a-zA-Z\d\s]+/g, '-')

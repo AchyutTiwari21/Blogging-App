@@ -12,8 +12,8 @@ function Header() {
             name: 'Home',
             slug: "/",
             active: true
-          }, 
-          {
+        }, 
+        {
             name: "Login",
             slug: "/login",
             active: !authStatus,
@@ -42,9 +42,9 @@ function Header() {
                     <div className="mr-4">
                         <Link to='/'>
                         <Logo width="70px" />
-
                         </Link>
                     </div>
+                    
                     <ul className="flex ml-auto">
                         {navItems.map((item) => 
                         item.active ? (
